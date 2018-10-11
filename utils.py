@@ -13,22 +13,23 @@ import subprocess
 
 #下载进度条回调 
 def callbackfunc(blocknum, blocksize, totalsize):
+    pass 
     '''回调函数
     @blocknum: 已经下载的数据块
     @blocksize: 数据块的大小
     @totalsize: 远程文件的大小
     '''
-    percent = 100.0 * blocknum * blocksize / totalsize
-    if percent > 100:
-        percent = 100
+    # percent = 100.0 * blocknum * blocksize / totalsize
+    # if percent > 100:
+    #     percent = 100
     
-    max_arrow = 50 #进度条的长度
-    num_arrow = int(percent * max_arrow/100.0) 
+    # max_arrow = 50 #进度条的长度
+    # num_arrow = int(percent * max_arrow/100.0) 
 
-    process_bar = '\r[' + '>' * num_arrow + '#' * (max_arrow -  num_arrow) + ']'\
-                      + '%.2f%%' % percent  #带输出的字符串，'\r'表示不换行回到最左边
-    sys.stdout.write(process_bar) #这两句打印字符到终端
-    sys.stdout.flush()
+    # process_bar = '\r[' + '>' * num_arrow + '#' * (max_arrow -  num_arrow) + ']'\
+    #                   + '%.2f%%' % percent  #带输出的字符串，'\r'表示不换行回到最左边
+    # sys.stdout.write(process_bar) #这两句打印字符到终端
+    # sys.stdout.flush()
 
 
 #工具类
