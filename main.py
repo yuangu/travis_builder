@@ -2,8 +2,19 @@
 
 import os
 from config  import config
-
 import importlib
+
+#获取python文件所在的路径
+def p():
+    frozen = "not"
+    if getattr(sys, 'frozen',False):
+        frozen = "ever so"
+        return os.path.dirname(sys.executable)
+
+    return os.path.split(os.path.realpath(__file__))[0]
+
+import sys 
+sys.path.append(p()) 
 
 def main():
     build_target = os.environ["BUILD_TARGET"]
