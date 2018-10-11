@@ -24,7 +24,8 @@ def config_env(config):
     if "components" in config:
         components = config["components"]
 
-        cmd = 'echo "y" | /usr/local/android-sdk/tools/bin/sdkmanager   %s > /dev/null' % ( " ".join( '%s'%(v, ) for v in components) ,)
+        cmd = 'echo "y" | /usr/local/android-sdk/tools/bin/sdkmanager  %s > /dev/null' % ( " ".join( '"%s"'%(v, ) for v in components) ,)
+        print cmd
         os.system(cmd)
 
         #默认使用ndk-bundle的ndk
