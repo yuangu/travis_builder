@@ -1,6 +1,7 @@
 matrix:
   include:
-    - os: osx
+    # for android    
+    - os: linux
       language: android
       android:
         components:
