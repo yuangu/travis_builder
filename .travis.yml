@@ -1,17 +1,19 @@
 matrix:
-  - os: osx
-    language: android
-    android:
-      components:
-        - build-tools-28.0.3
-        - android-19
-        - ndk-bundle
-        - cmake-3.6.4111459
+  include:
+    - os: osx
+      language: android
+      android:
+        components:
+          - build-tools-28.0.3
+          - android-19
+          - ndk-bundle
+          - cmake-3.6.4111459
 
 # before_install:
 # - tools/travis-scripts/before-install.sh
 
 script:
+  - which android
   - git clone https://github.com/yuangu/sxtwl_cpp.git
   - cd sxtwl_cpp
   - python ndk_build.py
