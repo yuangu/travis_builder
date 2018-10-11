@@ -3,6 +3,7 @@
 import os
 from config  import config
 import importlib
+import Android.build_sxtwl
 
 #获取python文件所在的路径
 def p():
