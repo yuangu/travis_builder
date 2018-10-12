@@ -66,7 +66,7 @@ def do_config(config):
        
         NDK_ROOT = os.path.join(extractZipFilePath, extractZipFilePath_dir_list[list_len - 1] )
         Utils.runCmd("chmod -R 775 %s"%(NDK_ROOT,))
-        Utils.setOSEnviron("NDK_ROOT", NDK_ROOT)       
+        Utils.setOSEnviron("ANDROID_NDK_ROOT", NDK_ROOT)       
     else:
         #如果没有配置NDK，也没有设置下载sdkmanager
         if not has_ndk_bundle:
@@ -75,10 +75,10 @@ def do_config(config):
             Utils.runCmd(cmd)
 
         #默认使用ndk-bundle的ndk        
-        Utils.setOSEnviron("NDK_ROOT", os.path.join(Utils.getOSEnviron("ANDROID_SDK_ROOT"), "ndk-bundle"))
+        Utils.setOSEnviron("ANDROID_NDK_ROOT", os.path.join(Utils.getOSEnviron("ANDROID_SDK_ROOT"), "ndk-bundle"))
 
     #打印ndk版本
-    NDK_ROOT = os.environ["NDK_ROOT"]
+    NDK_ROOT = os.environ["ANDROID_NDK_ROOT"]
     with open(os.path.join(NDK_ROOT, "source.properties")) as f:
         for  line in  f.readlines(): 
             v = line.split('=')

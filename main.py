@@ -3,7 +3,8 @@
 import os
 from config  import config
 import importlib
- 
+from utils import Utils
+from mail import sendmail
 
 def doBeforeBuild(env_config):    
     #判断是否有构建项
@@ -22,10 +23,18 @@ def doBeforeBuild(env_config):
     do_config(env_config)
     return True
 
-def doAfterBuild(env_config, install_path): 
-    pass  
+def doAfterBuild(build_config, install_path):
+    name = build_config["name"]
+    file_name = "./pack.zip"
+    Utils.makeZipFile(file_name, install_path)
 
-def doBuild(env_config, install_path = "."):
+    subject = u"自动打包 %s (%s)"%(name,  os.environ["BUILD_TARGET"])
+    msg = u"这是一封自动发送的邮件，请不回复" 
+    sendmail(mail_config.smtp_server ,mail_config.smtp_username, mail_config.smtp_passwd, mail_config.to_mail,subject, msg ,file_name)
+
+
+
+def doBuild(env_config):
     build_script = env_config['build_script']
     
     for k in build_script.keys():
@@ -34,9 +43,11 @@ def doBuild(env_config, install_path = "."):
             continue
 
         #加载构建器
+        name = build_config["name"]
+        install_path = os.path.join("./", name)
         builder = importlib.import_module("Android." + k )
         builder.do_build(build_script[k], install_path)
-        doAfterBuild(env_config, install_path)
+        doAfterBuild(build_script[k], install_path)
 
 
 def main():

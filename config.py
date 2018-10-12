@@ -1,11 +1,12 @@
 #-*-coding:utf-8-*-
 
 config ={
+    #android打包配置项
     "Android":{
         #sdk components
         "components":(
-            "ndk-bundle",
-            #"cmake;3.6.4111459", 
+            #"ndk-bundle",
+            "cmake;3.6.4111459", 
         ),
 
         "ndk": 'https://dl.google.com/android/repository/android-ndk-r16b-linux-x86_64.zip',    #ndk下载地址
@@ -13,11 +14,24 @@ config ={
 
         "build_script":{
             "build_sxtwl":
-            {
+            {   
+                'name': "sxtwl",
                 'needBuild': True
             }
         },
     },
+
+
+
+    #邮件发送的地址
+    #帐号和密码来源https://github.com/normal-four/test/blob/815393a266142ba64df0402f9a6c15c203b95156/spider/mailtest.py
+    'mail':
+    {
+        'smtp_username' : "wzp_test@126.com",
+        'smtp_passwd' : "a1269325139",
+        'smtp_server' : 'smtp.126.com',
+        'to_mail': "1143402671@qq.com"
+    }
 }
 
 
