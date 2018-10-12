@@ -98,3 +98,18 @@ class Utils():
     @staticmethod
     def download(url, path):
         urllib.urlretrieve(url, path, callbackfunc)
+
+    @staticmethod
+    def setOSEnviron(key, vaule):
+        os.environ[key] = vaule
+
+    @staticmethod
+    def getOSEnviron(key):
+        if key in os.environ.keys():
+            return os.environ[key]
+        return None
+
+    @staticmethod
+    def runCmd(cmd):
+        print cmd
+        return os.system(cmd) == 0
