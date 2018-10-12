@@ -10,9 +10,12 @@ config ={
 
         "ndk": 'https://dl.google.com/android/repository/android-ndk-r16b-linux-x86_64.zip',    #ndk下载地址
 
-        "build_script":(
-            "build_sxtwl"
-        ),
+        "build_script":{
+            "build_sxtwl":
+            {
+                'needBuild': True
+            }
+        },
     },
 }
 

@@ -2,67 +2,51 @@
 
 import os
 from config  import config
-import sys
-import traceback
+import importlib
  
- 
-def import_class(import_str):
-    """Returns a class from a string including module and class.
-    .. versionadded:: 0.3
-    """
-    mod_str, _sep, class_str = import_str.rpartition('.')
-    __import__(mod_str)
-    try:
-        return getattr(sys.modules[mod_str], class_str)
-    except AttributeError:
-        raise ImportError('Class %s cannot be found (%s)' %
-                          (class_str,
-                           traceback.format_exception(*sys.exc_info())))
- 
- 
-def import_object(import_str, *args, **kwargs):
-    """Import a class and return an instance of it.
-    .. versionadded:: 0.3
-    """
-    return import_class(import_str)(*args, **kwargs)
- 
- 
-def import_module(import_str):
-    """Import a module.
-    .. versionadded:: 0.3
-    """
-    print import_str
-    __import__(import_str)
-    return sys.modules[import_str]
 
-#获取python文件所在的路径
-def p():
-    frozen = "not"
-    if getattr(sys, 'frozen',False):
-        frozen = "ever so"
-        return os.path.dirname(sys.executable)
+def doBeforeBuild(env_config):    
+    #判断是否有构建项
+    build_script = env_config['build_script']
+    hasNeedBuildPackage = False 
+    for k in build_script.keys():
+        build_config = build_script[k]
+        if "needBuild" in build_config.keys() and build_config["needBuild"]:
+            hasNeedBuildPackage = True
+            break
+    if not hasNeedBuildPackage:
+        return False
+    
+    #配置环境 
+    from android_env import do_config
+    do_config(env_config)
+    return True
 
-    return os.path.split(os.path.realpath(__file__))[0]
+def doAfterBuild(env_config, install_path): 
+    pass  
 
-import sys 
-sys.path.append(p()) 
+def doBuild(env_config, install_path = "."):
+    build_script = env_config['build_script']
+    
+    for k in build_script.keys():
+        build_config = build_script[k]
+        if "needBuild" not in build_config.keys() or not build_config["needBuild"]:
+            continue
 
-build_script = import_module("Android." + "build_sxtwl")
+        #加载构建器
+        builder = importlib.import_module("Android." + k )
+        builder.do_build(build_script[k], install_path)
+        doAfterBuild(env_config, install_path)
+
 
 def main():
     build_target = os.environ["BUILD_TARGET"]
     env_config = config[build_target]
     
-    if build_target  == 'Android':
-        #配置系统环境
-        from android_env import config_env
-        config_env(env_config)
-        
-        #正式构建
-        for v in env_config['build_script']:
-            build_script = import_module("Android." + v)
-            build_script.do_build()
-
+    if not doBeforeBuild(env_config):
+        return
+    doBuild(env_config)
+   
 if __name__ == "__main__":
     main()
 

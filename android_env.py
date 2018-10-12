@@ -3,7 +3,7 @@
 import os
 from utils import Utils
 
-def config_env(config):
+def do_config(config):
     before_install_cmds   =(
         "export TERM=dumb",
         "touch ~/.android/repositories.cfg",
