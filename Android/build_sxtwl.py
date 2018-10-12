@@ -2,11 +2,12 @@
 import os
 
 def do_build(config, installPath):
-    cmd = (
-        "git clone https://github.com/yuangu/sxtwl_cpp.git"
+    cmd_lists = (
+        "git clone https://github.com/yuangu/sxtwl_cpp.git",
         "cd sxtwl_cpp && python ndk_build.py"
     )
 
-    os.system(cmd)
+    for cmd in cmd_lists:
+        os.system(cmd)
 
 
