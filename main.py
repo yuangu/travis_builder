@@ -31,6 +31,7 @@ def import_module(import_str):
     """Import a module.
     .. versionadded:: 0.3
     """
+    print import_str
     __import__(import_str)
     return sys.modules[import_str]
 
@@ -46,7 +47,7 @@ def p():
 import sys 
 sys.path.append(p()) 
 
-
+build_script = import_module("Android." + "build_sxtwl")
 
 def main():
     build_target = os.environ["BUILD_TARGET"]
