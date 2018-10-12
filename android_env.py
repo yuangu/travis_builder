@@ -18,6 +18,7 @@ def do_config(config):
     )
 
     for cmd in before_install_cmds:
+        print cmd
         os.system(cmd)
 
     #update android sdk
@@ -29,6 +30,7 @@ def do_config(config):
             has_ndk_bundle = True
 
         cmd = 'echo "y" | /usr/local/android-sdk/tools/bin/sdkmanager  %s > /dev/null' % ( " ".join( '"%s"'%(v, ) for v in components) ,)
+        print cmd
         os.system(cmd)
 
     
@@ -40,15 +42,20 @@ def do_config(config):
         Utils.download(ndk_url, android_ndk_zip_name)
         Utils.extractZipFile(android_ndk_zip_name,  "./android_ndk")
         cmd = "export NDK_ROOT=%s" %(os.path.realpath("./android_ndk"), )
+        os.environ["NDK_ROOT"] = "%s" %(os.path.realpath("./android_ndk"), )
+        print cmd
         os.system(cmd)  
     else:
         #如果没有配置NDK，也没有设置下载sdkmanager
         if not has_ndk_bundle:
             cmd = 'echo "y" | /usr/local/android-sdk/tools/bin/sdkmanager %s > /dev/null' % ('"ndk-bundle"' ,)
+            print cmd
             os.system(cmd)
 
         #默认使用ndk-bundle的ndk
-        cmd = "export NDK_ROOT=/usr/local/android-sdk/ndk-bundle" 
+        cmd = "export NDK_ROOT=/usr/local/android-sdk/ndk-bundle"
+        os.environ["NDK_ROOT"] = "/usr/local/android-sdk/ndk-bundle"
+        print cmd 
         os.system(cmd)
 
 
