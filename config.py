@@ -9,7 +9,7 @@ config ={
         ),
 
         "ndk": 'https://dl.google.com/android/repository/android-ndk-r16b-linux-x86_64.zip',    #ndk下载地址
-        "ndk_sha_256":'92ffee5a1d98d856634e8b71132e8a95d96c83a63fde1099be3d86df3106def9', 
+        "ndk_sha_1":'42aa43aae89a50d1c66c3f9fdecd676936da6128', 
 
         "build_script":{
             "build_sxtwl":

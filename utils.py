@@ -6,7 +6,6 @@ import zipfile
 import hashlib
 import sys
 import platform
-import requests
 import urllib
 import subprocess
 
@@ -94,6 +93,14 @@ class Utils():
             for block in iter(lambda: f.read(block_size), b''):
                 sha256.update(block)
         return sha256.hexdigest()
+
+    @staticmethod
+    def sha1_checksum(filename, block_size=65536):
+        sha1 = hashlib.sha1()        
+        with open(filename, 'rb') as f:
+            for block in iter(lambda: f.read(block_size), b''):
+                sha1.update(block)
+        return sha1.hexdigest()
 
     @staticmethod
     def download(url, path):

@@ -3,53 +3,59 @@
 import os
 from utils import Utils
 
+
 def do_config(config):
-    Utils.setOSEnviron("TERM", "dumb")
-    #Utils.setOSEnviron("ANDROID_SDK_ROOT", "/usr/local/android-sdk")
-
-    Utils.runCmd("touch ~/.android/repositories.cfg")
-    android_sdk_licenses_dirs = os.path.join(Utils.getOSEnviron("ANDROID_SDK_ROOT"), "licenses")
-    Utils.mkDir( android_sdk_licenses_dirs )
-    
-    with open( os.path.join(android_sdk_licenses_dirs, 'android-sdk-license'), "w+" ) as f:
-        f.write("\n8933bad161af4178b1185d1a37fbf41ea5269c55")
-        f.write("\nd56f5187479451eabf01fb78af6dfcb131a6481e")
-
-    sdkmanager = os.path.join(Utils.getOSEnviron("ANDROID_SDK_ROOT"),  "tools/bin/sdkmanager")
-    Utils.runCmd('%s --update > /dev/null' % (sdkmanager, ) )
-    
-    #update android sdk
     has_ndk_bundle = False
-    if "components" in config:
-        components = config["components"]
+    
+    #更新android sdk
+    if Utils.getOSEnviron("ANDROID_SDK_ROOT") != None:
+        Utils.setOSEnviron("TERM", "dumb")
+        #Utils.setOSEnviron("ANDROID_SDK_ROOT", "/usr/local/android-sdk")
+
+        Utils.runCmd("touch ~/.android/repositories.cfg")
+        android_sdk_licenses_dirs = os.path.join(Utils.getOSEnviron("ANDROID_SDK_ROOT"), "licenses")
+        Utils.mkDir( android_sdk_licenses_dirs )
         
-        # is has ndk-bundle
-        if "ndk-bundle" not in components:
-            has_ndk_bundle = True
+        with open( os.path.join(android_sdk_licenses_dirs, 'android-sdk-license'), "w+" ) as f:
+            f.write("\n8933bad161af4178b1185d1a37fbf41ea5269c55")
+            f.write("\nd56f5187479451eabf01fb78af6dfcb131a6481e")
+
+        sdkmanager = os.path.join(Utils.getOSEnviron("ANDROID_SDK_ROOT"),  "tools/bin/sdkmanager")
+        Utils.runCmd('%s --update > /dev/null' % (sdkmanager, ) )
+    
+        #update android sdk
+        if "components" in config:
+            components = config["components"]
+            
+            # is has ndk-bundle
+            if "ndk-bundle" not in components:
+                has_ndk_bundle = True
 
 
-        componentsStr = " ".join( '"%s"'%(v, ) for v in components)
-        cmd = 'echo "y" | %s   %s > /dev/null' % (sdkmanager,  componentsStr)
-        Utils.runCmd(cmd)
+            componentsStr = " ".join( '"%s"'%(v, ) for v in components)
+            cmd = 'echo "y" | %s   %s > /dev/null' % (sdkmanager,  componentsStr)
+            Utils.runCmd(cmd)
 
-    #配置NDK
+    #更新NDK配置NDK
     if "ndk" in config and config["ndk"] !=  None:
         ndk_url =  config["ndk"] 
 
-        android_ndk_zip_name = "ndk.zip"
-        
         #判断本地的ndk
         needDownload  = True
-        android_sdk_zip = "android_sdk.zip"
-        if os.path.isfile(android_sdk_zip) and ("ndk_sha_256" in config) and config["ndk_sha_256"] != None:
-            sha256 = Utils.sha256_checksum(android_sdk_zip)
-            if sha256.lower() == config["ndk_sha_256"]:
+        android_sdk_zip = "android_ndk.zip"    
+        if os.path.isfile(android_sdk_zip) and ("ndk_sha_1" in config) and config["ndk_sha_1"] != None:
+            sha1 = Utils.sha1_checksum(android_sdk_zip)         
+            if sha1.lower() == config["ndk_sha_1"]:
+                print "exist android_ndk.zip"
                 needDownload =  False
+
         #需要下载NDK
         if needDownload:
-            Utils.download(ndk_url, android_ndk_zip_name)
+            Utils.download(ndk_url, android_sdk_zip)
+        
         #解压NDK
-        Utils.extractZipFile(android_ndk_zip_name,  "./android_ndk")
+        Utils.cleanFile("./android_ndk")
+        Utils.extractZipFile(android_sdk_zip,  "./android_ndk")
         
         #获取NDK真实的地址
         extractZipFilePath = os.path.realpath("./android_ndk")
@@ -59,6 +65,7 @@ def do_config(config):
             return  False
        
         NDK_ROOT = os.path.join(extractZipFilePath, extractZipFilePath_dir_list[list_len - 1] )
+        Utils.runCmd("chmod -R 775 %s"%(NDK_ROOT,))
         Utils.setOSEnviron("NDK_ROOT", NDK_ROOT)       
     else:
         #如果没有配置NDK，也没有设置下载sdkmanager
@@ -82,3 +89,13 @@ def do_config(config):
                 value = v[1].strip()
                 print "NDK Version:%s" %(value,)
                 break
+
+
+
+if __name__ == "__main__":
+    config = {
+        "ndk": 'https://dl.google.com/android/repository/android-ndk-r16b-linux-x86_64.zip',    #ndk下载地址
+        "ndk_sha_1":'42aa43aae89a50d1c66c3f9fdecd676936da6128',
+    }
+
+    do_config(config)
