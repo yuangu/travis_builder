@@ -1,6 +1,7 @@
 #-*-coding:utf-8-*-
 import os
 from utils import Utils
+import shutil
 
 def getCmakeDir(ANDROID_SDK):
     ndk_cmake_dir  = os.path.join(ANDROID_SDK,  "cmake")
@@ -68,7 +69,26 @@ def do_build(config, installPath):
         
         Utils.runCmd(cmd)
         Utils.runCmd("%s --build ."%(ANDROID_CMAKE, ))
-        Utils.runCmd("%s -P cmake_install.cmake"%(ANDROID_CMAKE, ))
+        
+        #不存在导出的java文件，则导出
+        outJavaPath = os.path.join(installPath, "java/com/huoyaojing")
+        if not os.path.isdir(outJavaPath):
+            Utils().mkDir(outJavaPath)
+            fileList = Utils.getAllDirFiles(buildDir, [".java"])
+            for tmp in fileList:
+                basename =  os.path.basename(tmp)
+                shutil.move(tmp, os.path.join(outJavaPath, basename))
+
+        #打包so库
+        outSoPath = os.path.join(installPath, "jniLibs/" + abi)
+        Utils().cleanFile(outSoPath)
+        Utils().mkDir(outSoPath)
+        fileList = Utils.getAllDirFiles(buildDir, [".so"])
+        for tmp in fileList:
+            basename =  os.path.basename(tmp)
+            shutil.move(tmp, os.path.join(outSoPath, "libsxtwl_java.so"))
     
     #还原目录
     os.chdir(cwd)
+
+
