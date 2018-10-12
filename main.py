@@ -46,6 +46,7 @@ def doBuild(env_config):
         #加载构建器
         name = build_config["name"]
         install_path = os.path.join("./", name)
+        install_path = os.path.abspath(install_path)
         builder = importlib.import_module("Android." + k )
         builder.do_build(build_script[k], install_path)
         doAfterBuild(build_script[k], install_path)
