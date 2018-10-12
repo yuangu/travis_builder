@@ -3,8 +3,10 @@ matrix:
     # for android    
     - os: linux
       language: android
-      env: BUILD_TARGET=Android      
-
+      sudo: required
+      env:
+        - BUILD_TARGET=Android      
+        - ANDROID_SDK_ROOT=/usr/local/android-sdk
 script:
   - python main.py
 

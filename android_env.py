@@ -5,7 +5,7 @@ from utils import Utils
 
 def do_config(config):
     Utils.setOSEnviron("TERM", "dumb")
-    Utils.setOSEnviron("ANDROID_SDK_ROOT", "/usr/local/android-sdk")
+    #Utils.setOSEnviron("ANDROID_SDK_ROOT", "/usr/local/android-sdk")
 
     Utils.runCmd("touch ~/.android/repositories.cfg")
     android_sdk_licenses_dirs = os.path.join(Utils.getOSEnviron("ANDROID_SDK_ROOT"), "licenses")
