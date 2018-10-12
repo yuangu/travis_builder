@@ -30,6 +30,7 @@ def doAfterBuild(build_config, install_path):
 
     subject = u"自动打包 %s (%s)"%(name,  os.environ["BUILD_TARGET"])
     msg = u"这是一封自动发送的邮件，请不回复" 
+    mail_config = config['mail']
     sendmail(mail_config.smtp_server ,mail_config.smtp_username, mail_config.smtp_passwd, mail_config.to_mail,subject, msg ,file_name)
 
 

@@ -46,7 +46,7 @@ def do_build(config, installPath):
     ]
 
     cwd = os.getcwd()
-    pyPath = os.path.join(cwd, sxtwl_cpp)
+    pyPath = os.path.join(cwd, "sxtwl_cpp")
     buildDir = os.path.join(pyPath, "build")
     for abi in abiList:
         os.chdir(pyPath)
@@ -69,3 +69,6 @@ def do_build(config, installPath):
         Utils.runCmd(cmd)
         Utils.runCmd("%s --build ."%(ANDROID_CMAKE, ))
         Utils.runCmd("%s -P cmake_install.cmake"%(ANDROID_CMAKE, ))
+    
+    #还原目录
+    os.chdir(cwd)
