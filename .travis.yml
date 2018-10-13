@@ -7,12 +7,13 @@ matrix:
       env:
         - BUILD_TARGET=Android      
         - ANDROID_SDK_ROOT=/usr/local/android-sdk
-      before_install:
-        - if [ ! -z "$QT" ] ; then
-            sudo add-apt-repository --yes ppa:ubuntu-sdk-team/ppa ;
-          fi
+      before_install:      
         - sudo apt-get update -qq
+        - sudo apt-get install -q python-pip
         - sudo apt-get install -q swig 
+        - sudo python -m pip install pycrypto
+        - sudo python -m pip install pycryptodome
+    
 script:
   - python main.py $BUILD_TARGET
 
