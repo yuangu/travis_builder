@@ -21,17 +21,18 @@ def sendmail(smtpServer, username, passwd, toMail, subject, msg, file_name):
     maintype, subtype = contype.split('/', 1)
     
     ## 读入文件内容并格式化
-    data = open(file_name, 'rb')
-    file_msg = MIMEBase.MIMEBase(maintype, subtype)
-    file_msg.set_payload(data.read( ))
-    data.close( )
-    Encoders.encode_base64(file_msg)
-    
-    ## 设置附件头
-    basename = os.path.basename(file_name)
-    file_msg.add_header('Content-Disposition',
-    'attachment', filename = basename)
-    main_msg.attach(file_msg)
+    if file_name != None:
+        data = open(file_name, 'rb')
+        file_msg = MIMEBase.MIMEBase(maintype, subtype)
+        file_msg.set_payload(data.read( ))
+        data.close( )
+        Encoders.encode_base64(file_msg)
+        
+        ## 设置附件头
+        basename = os.path.basename(file_name)
+        file_msg.add_header('Content-Disposition',
+        'attachment', filename = basename)
+        main_msg.attach(file_msg)
     
     # 设置根容器属性
     main_msg['From'] = username

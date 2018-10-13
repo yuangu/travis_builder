@@ -14,8 +14,7 @@ config ={
 
         "build_script":{
             "build_sxtwl":
-            {   
-                'name': "sxtwl",
+            {                   
                 'needBuild': True,
                  "abiList" : [
                     #'armeabi', 
@@ -31,11 +30,13 @@ config ={
     },
 
 
-
+    'use_send_firefox':True,   #如果使用邮箱的附件的话，设置成false
     #邮件发送的地址
     #帐号和密码来源https://github.com/normal-four/test/blob/815393a266142ba64df0402f9a6c15c203b95156/spider/mailtest.py
     'mail':
     {
+        'try_time':0, 
+        
         'smtp_username' : "wzp_test@126.com",
         'smtp_passwd' : "a1269325139",
         'smtp_server' : 'smtp.126.com',

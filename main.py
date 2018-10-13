@@ -24,21 +24,29 @@ def doBeforeBuild(env_config):
     do_config(env_config)
     return True
 
-def doAfterBuild(build_config, install_path):
-    name = build_config["name"]
-    file_name = "./pack.zip"
-    Utils.cleanFile(file_name)
+def doAfterBuild(build_config, install_path):    
+    file_name =  os.path.basename(install_path) 
+    subject = u"自动打包 %s (%s)"%(file_name,  os.environ["BUILD_TARGET"])
+    
+    file_name = file_name + ".zip"
+    Utils.cleanFile(file_name )
     Utils.makeZipFile(file_name, install_path)
 
-    subject = u"自动打包 %s (%s)"%(name,  os.environ["BUILD_TARGET"])
+    
     msg = u"这是一封自动发送的邮件，请不回复" 
     mail_config = config['mail']
 
-    try_time = 0
-    while(try_time < 3):
+    if "use_send_firefox" in config.keys() and  config["use_send_firefox"]:
+        from ffsend import upload
+        url, owner =  upload("https://send.firefox.com/", file_name)
+        file_name = None
+        msg = u"这是一封自动发送的邮件，请不回复!\n您的打包结果下载地址:%s" %(url,)
+
+    try_time = mail_config['try_time']
+    while(try_time > 0):
         try:
-            try_time = try_time + 1
-            print "try sendmail @ time:" + str(try_time)
+            try_time = try_time - 1
+            print "try sendmail @ time:" + str(mail_config['try_time'] - try_time)
             sendmail(mail_config['smtp_server'] ,mail_config['smtp_username'], mail_config['smtp_passwd'], mail_config['to_mail'],subject, msg ,file_name)
             break
         except:
@@ -52,16 +60,16 @@ def doBuild(env_config):
         if "needBuild" not in build_config.keys() or not build_config["needBuild"]:
             continue
 
-        #加载构建器
-        name = build_config["name"]
-        install_path = os.path.join("./build_out", name)
+        #加载构建器       
+        install_path = os.path.join("./build_out", k + "_pack")
         install_path = os.path.abspath(install_path)
         Utils.cleanFile(install_path)
         builder = importlib.import_module("Android." + k )
         builder.do_build(build_script[k], install_path)
         doAfterBuild(build_script[k], install_path)
 
-def main(build_target):    
+def main(build_target):
+    os.environ["BUILD_TARGET"] = build_target    
     env_config = config[build_target]
     
     if not doBeforeBuild(env_config):
