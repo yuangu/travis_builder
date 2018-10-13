@@ -5,6 +5,7 @@ from config  import config
 import importlib
 from utils import Utils
 from mail import sendmail
+import sys
 
 def doBeforeBuild(env_config):    
     #判断是否有构建项
@@ -43,7 +44,6 @@ def doAfterBuild(build_config, install_path):
         except:
             pass
 
-
 def doBuild(env_config):
     build_script = env_config['build_script']
     
@@ -61,9 +61,7 @@ def doBuild(env_config):
         builder.do_build(build_script[k], install_path)
         doAfterBuild(build_script[k], install_path)
 
-
-def main():
-    build_target = os.environ["BUILD_TARGET"]
+def main(build_target):    
     env_config = config[build_target]
     
     if not doBeforeBuild(env_config):
@@ -71,7 +69,10 @@ def main():
     doBuild(env_config)
    
 if __name__ == "__main__":
-    main()
+    if len(sys.argv) >= 2:
+        main(sys.argv[1])
+    else:
+        print "python main.py build_platform_name"
 
 
     

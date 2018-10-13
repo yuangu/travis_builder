@@ -42,8 +42,8 @@ def do_build(config, installPath):
 
     ANDROID_CMAKE = os.path.join(CMAKE_DIR, 'bin/cmake')
     ANDROID_NINJA=os.path.join(CMAKE_DIR,'bin/ninja')
-    if "windows" != platform.system().lower():
-        ANDROID_NINJA = ANDROID_NINJA + ".exe"
+    # if "windows" == platform.system().lower():
+    #     ANDROID_NINJA = ANDROID_NINJA + ".exe"
 
     Utils().cleanFile(installPath)
     

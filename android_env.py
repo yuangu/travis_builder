@@ -125,8 +125,9 @@ def do_config(config):
                 Utils.runCmd(cmd)
 
     #打印ndk版本
-    NDK_ROOT = os.environ["ANDROID_NDK_ROOT"]
-    print "NDK Version:%s" %(getPackageVersion(NDK_ROOT),)
+    NDK_ROOT = Utils.getOSEnviron("ANDROID_NDK_ROOT")
+    if NDK_ROOT != None:
+        print "NDK Version:%s" %(getPackageVersion(NDK_ROOT),)
 
 if __name__ == "__main__":
     config = {

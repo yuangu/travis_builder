@@ -14,7 +14,7 @@ matrix:
         - sudo apt-get update -qq
         - sudo apt-get install -q swig 
 script:
-  - python main.py
+  - python main.py $BUILD_TARGET
 
 cache:
   bundler: true
