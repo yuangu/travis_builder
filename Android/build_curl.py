@@ -16,7 +16,6 @@ def getCmakeDir(ANDROID_SDK):
     
     return os.path.join(ndk_cmake_dir, cmake_dir_list[list_len - 1] )
 
-
 def do_build(config, installPath):
     #需要打包的abi
     abiList = [ ]
@@ -24,16 +23,21 @@ def do_build(config, installPath):
         abiList.extend(config["abiList"])
     if len(abiList) <= 0:
         return
+
+    downloadUrl =  'https://curl.haxx.se/download/curl-%s.zip'%(config['version'],)
     
+    outZipPath = os.path.join("./", os.path.basename(downloadUrl))
+    if not os.path.isfile(outZipPath):
+        Utils.download(downloadUrl,   outZipPath)
+    
+    Utils.extractZipFile(outZipPath)
+    
+    (filepath,tempfilename) = os.path.split(outZipPath)
+    (shotname,extension) = os.path.splitext(tempfilename)
     #获取源代码
     cwd = os.getcwd()
-    srcPath = os.path.join(cwd, "sxtwl_cpp")
-    if os.path.isdir(srcPath):
-        os.chdir(srcPath)
-        os.system("git pull")
-        os.chdir(cwd)
-    else:
-        os.system( "git clone https://github.com/yuangu/sxtwl_cpp.git")
+    srcPath = os.path.join(cwd, shotname)
+    os.chdir(srcPath)
 
     ANDROID_SDK = Utils.getOSEnviron("ANDROID_SDK_ROOT")
     ANDROID_NDK = Utils.getOSEnviron("ANDROID_NDK_ROOT")
@@ -42,10 +46,16 @@ def do_build(config, installPath):
 
     ANDROID_CMAKE = os.path.join(CMAKE_DIR, 'bin/cmake')
     ANDROID_NINJA=os.path.join(CMAKE_DIR,'bin/ninja')
-  
+    
+
     Utils().cleanFile(installPath)
     
     buildDir = os.path.join(srcPath, "build")
+
+    cmake_arguments= ""
+    if 'cmake_arguments' in config.keys():
+        cmake_arguments= config['cmake_arguments']
+
     for abi in abiList:
         os.chdir(srcPath)
         Utils().cleanFile(buildDir)
@@ -59,34 +69,13 @@ def do_build(config, installPath):
         -DCMAKE_CXX_FLAGS=-std=c++11 -frtti -fexceptions   \
         -DCMAKE_TOOLCHAIN_FILE=%s/build/cmake/android.toolchain.cmake    \
         -DCMAKE_MAKE_PROGRAM=%s -G "Ninja"    \
-        -DCONSOLE=1   \
-        -DSXTWL_WRAPPER_JAVA=1  \
+        -DHAVE_POLL_FINE_EXITCODE=0    \
+        %s \
         -DCMAKE_INSTALL_PREFIX=%s \
-        ..'''%(ANDROID_CMAKE,abi,ANDROID_NDK,ANDROID_NDK,ANDROID_NINJA, installPath ) 
+        ..'''%(ANDROID_CMAKE,abi,ANDROID_NDK,ANDROID_NDK,ANDROID_NINJA, cmake_arguments,  os.path.join(installPath,abi) ) 
         
-
         Utils.runCmd(cmd)
         Utils.runCmd("%s --build ."%(ANDROID_CMAKE, ))
-        
-        #不存在导出的java文件，则导出
-        outJavaPath = os.path.join(installPath, "java/com/huoyaojing")
-        if not os.path.isdir(outJavaPath):
-            Utils().mkDir(outJavaPath)
-            fileList = Utils.getAllDirFiles(buildDir, [".java"])
-            for tmp in fileList:
-                basename =  os.path.basename(tmp)
-                shutil.move(tmp, os.path.join(outJavaPath, basename))
+        os.system("%s -P cmake_install.cmake"%(ANDROID_CMAKE, ))
 
-        #打包so库
-        outSoPath = os.path.join(installPath, "jniLibs/" + abi)
-        Utils().cleanFile(outSoPath)
-        Utils().mkDir(outSoPath)
-        fileList = Utils.getAllDirFiles(buildDir, [".so"])
-        for tmp in fileList:
-            basename =  os.path.basename(tmp)
-            shutil.move(tmp, os.path.join(outSoPath, "libsxtwl_java.so"))
-    
-    #还原目录
     os.chdir(cwd)
-
-

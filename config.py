@@ -15,8 +15,24 @@ config ={
         "build_script":{
             "build_sxtwl":
             {                   
-                'needBuild': True,
+                'needBuild': False,
                  "abiList" : [
+                    #'armeabi', 
+                    'armeabi-v7a',
+                    "arm64-v8a",
+                    "x86",
+                    'x86_64',
+                    # 'mips',
+                    # 'mips64',
+                ]
+            },
+
+            "build_curl":
+            {                   
+                'needBuild': True,
+                'version':'7.61.1', #curl的版本
+                'cmake_arguments':"-DCMAKE_USE_OPENSSL=0 -DHTTP_ONLY=1 -DBUILD_SHARED_LIBS=0",
+                "abiList" : [
                     #'armeabi', 
                     'armeabi-v7a',
                     "arm64-v8a",
@@ -27,6 +43,9 @@ config ={
                 ]
             }
         },
+
+
+
     },
 
 

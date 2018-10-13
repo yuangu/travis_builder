@@ -13,7 +13,7 @@ matrix:
         - sudo apt-get install -q swig 
         - sudo python -m pip install pycrypto
         - sudo python -m pip install pycryptodome
-    
+        - sudo python -m pip install requests_toolbelt
 script:
   - python main.py $BUILD_TARGET
 
