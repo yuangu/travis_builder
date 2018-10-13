@@ -2,6 +2,7 @@
 import os
 from utils import Utils
 import shutil
+import platform
 
 def getCmakeDir(ANDROID_SDK):
     ndk_cmake_dir  = os.path.join(ANDROID_SDK,  "cmake")
@@ -17,13 +18,22 @@ def getCmakeDir(ANDROID_SDK):
 
 
 def do_build(config, installPath):
-    cmd_lists = (
-        "git clone https://github.com/yuangu/sxtwl_cpp.git",
-        #"cd sxtwl_cpp && python ndk_build.py"
-    )
-
-    for cmd in cmd_lists:
-        os.system(cmd)
+    #需要打包的abi
+    abiList = [ ]
+    if config != None and "abiList" in config.keys():
+        abiList.extend(config["abiList"])
+    if len(abiList) <= 0:
+        return
+    
+    #获取源代码
+    cwd = os.getcwd()
+    srcPath = os.path.join(cwd, "sxtwl_cpp")
+    if os.path.isdir(srcPath):
+        os.chdir(srcPath)
+        os.system("git pull")
+        os.chdir(cwd)
+    else:
+        os.system( "git clone https://github.com/yuangu/sxtwl_cpp.git")
 
     ANDROID_SDK = Utils.getOSEnviron("ANDROID_SDK_ROOT")
     ANDROID_NDK = Utils.getOSEnviron("ANDROID_NDK_ROOT")
@@ -32,25 +42,14 @@ def do_build(config, installPath):
 
     ANDROID_CMAKE = os.path.join(CMAKE_DIR, 'bin/cmake')
     ANDROID_NINJA=os.path.join(CMAKE_DIR,'bin/ninja')
+    if "windows" != platform.system().lower():
+        ANDROID_NINJA = ANDROID_NINJA + ".exe"
 
     Utils().cleanFile(installPath)
     
-    #需要打包的abi
-    abiList = [
-        'armeabi',
-        'armeabi-v7a',
-        "arm64-v8a",
-        "x86",
-        'x86_64',
-        'mips',
-        'mips64',
-    ]
-
-    cwd = os.getcwd()
-    pyPath = os.path.join(cwd, "sxtwl_cpp")
-    buildDir = os.path.join(pyPath, "build")
+    buildDir = os.path.join(srcPath, "build")
     for abi in abiList:
-        os.chdir(pyPath)
+        os.chdir(srcPath)
         Utils().cleanFile(buildDir)
         Utils().mkDir(buildDir)
         os.chdir(buildDir)

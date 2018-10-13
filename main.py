@@ -32,8 +32,16 @@ def doAfterBuild(build_config, install_path):
     subject = u"自动打包 %s (%s)"%(name,  os.environ["BUILD_TARGET"])
     msg = u"这是一封自动发送的邮件，请不回复" 
     mail_config = config['mail']
-    sendmail(mail_config['smtp_server'] ,mail_config['smtp_username'], mail_config['smtp_passwd'], mail_config['to_mail'],subject, msg ,file_name)
 
+    try_time = 0
+    while(try_time < 3):
+        try:
+            try_time = try_time + 1
+            print "try sendmail @ time:" + str(try_time)
+            sendmail(mail_config['smtp_server'] ,mail_config['smtp_username'], mail_config['smtp_passwd'], mail_config['to_mail'],subject, msg ,file_name)
+            break
+        except:
+            pass
 
 
 def doBuild(env_config):
@@ -46,7 +54,7 @@ def doBuild(env_config):
 
         #加载构建器
         name = build_config["name"]
-        install_path = os.path.join("./", name)
+        install_path = os.path.join("./build_out", name)
         install_path = os.path.abspath(install_path)
         Utils.cleanFile(install_path)
         builder = importlib.import_module("Android." + k )
