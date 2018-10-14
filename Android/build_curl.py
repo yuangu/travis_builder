@@ -56,26 +56,36 @@ def do_build(config, installPath):
     if 'cmake_arguments' in config.keys():
         cmake_arguments= config['cmake_arguments']
 
-    for abi in abiList:
-        os.chdir(srcPath)
-        Utils().cleanFile(buildDir)
-        Utils().mkDir(buildDir)
-        os.chdir(buildDir)
-        
-        cmd = '''%s -DANDROID_ABI=%s   \
-        -DANDROID_PLATFORM=android-16  \
-        -DCMAKE_BUILD_TYPE=Release   \
-        -DANDROID_NDK=%s    \
-        -DCMAKE_CXX_FLAGS=-std=c++11 -frtti -fexceptions   \
-        -DCMAKE_TOOLCHAIN_FILE=%s/build/cmake/android.toolchain.cmake    \
-        -DCMAKE_MAKE_PROGRAM=%s -G "Ninja"    \
-        -DHAVE_POLL_FINE_EXITCODE=0    \
-        %s \
-        -DCMAKE_INSTALL_PREFIX=%s \
-        ..'''%(ANDROID_CMAKE,abi,ANDROID_NDK,ANDROID_NDK,ANDROID_NINJA, cmake_arguments,  os.path.join(installPath,abi) ) 
-        
-        Utils.runCmd(cmd)
-        Utils.runCmd("%s --build ."%(ANDROID_CMAKE, ))
-        os.system("%s -P cmake_install.cmake"%(ANDROID_CMAKE, ))
+    android_api_level = "android-16"
+    if "android_api" in config.keys():
+        android_api_level = config["android_api"]
+
+
+    build_type_list = ["Release"]
+    if 'build_type' in config.keys():
+        build_type_list = config['build_type']
+
+    for build_type in  build_type_list:
+        for abi in abiList:
+            os.chdir(srcPath)
+            Utils().cleanFile(buildDir)
+            Utils().mkDir(buildDir)
+            os.chdir(buildDir)
+            
+            cmd = '''%s -DANDROID_ABI=%s   \
+            -DANDROID_PLATFORM=%s  \
+            -DCMAKE_BUILD_TYPE=%s  \
+            -DANDROID_NDK=%s    \
+            -DCMAKE_CXX_FLAGS=-std=c++11 -frtti -fexceptions   \
+            -DCMAKE_TOOLCHAIN_FILE=%s/build/cmake/android.toolchain.cmake    \
+            -DCMAKE_MAKE_PROGRAM=%s -G "Ninja"    \
+            -DHAVE_POLL_FINE_EXITCODE=0    \
+            %s \
+            -DCMAKE_INSTALL_PREFIX=%s \
+            ..'''%(ANDROID_CMAKE,abi,android_api_level,build_type,ANDROID_NDK,ANDROID_NDK,ANDROID_NINJA, cmake_arguments,  os.path.join(installPath,build_type,abi) ) 
+            
+            Utils.runCmd(cmd)
+            Utils.runCmd("%s --build ."%(ANDROID_CMAKE, ))
+            os.system("%s -P cmake_install.cmake"%(ANDROID_CMAKE, ))
 
     os.chdir(cwd)

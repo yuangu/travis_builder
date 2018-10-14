@@ -16,6 +16,8 @@ config ={
             "build_sxtwl":
             {                   
                 'needBuild': False,
+                'android_api': "android-16",
+                'build_type':["Release"], 
                  "abiList" : [
                     #'armeabi', 
                     'armeabi-v7a',
@@ -29,9 +31,11 @@ config ={
 
             "build_curl":
             {                   
-                'needBuild': True,
+                'needBuild': True,  
                 'version':'7.61.1', #curl的版本
                 'cmake_arguments':'-DCMAKE_USE_OPENSSL=0 -DHTTP_ONLY=1 -DBUILD_SHARED_LIBS=0 -DCURL_CA_BUNDLE_SET="none"',
+                'android_api': "android-16", 
+                'build_type':["Release"],
                 "abiList" : [
                     #'armeabi', 
                     'armeabi-v7a',
