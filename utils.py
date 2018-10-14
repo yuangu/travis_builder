@@ -85,6 +85,12 @@ class Utils():
             file_zip.extract(file, toDir)
         file_zip.close()
             
+    @staticmethod
+    def extractTarFile(filename, toDir = "."):
+        import tarfile
+        tar = tarfile.open(filename)
+        tar.extractall(toDir)
+            
 
     @staticmethod
     def sha256_checksum(filename, block_size=65536):

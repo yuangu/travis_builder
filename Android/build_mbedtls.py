@@ -16,24 +16,6 @@ def getCmakeDir(ANDROID_SDK):
     
     return os.path.join(ndk_cmake_dir, cmake_dir_list[list_len - 1] )
 
-def checkDependencies(config, cwd, build_type, abi):
-    if "dependencies" not in config:
-        return " -DCMAKE_USE_OPENSSL=0 "
-    
-    dependencies = config['dependencies']
-    if "build_mbedtls" in dependencies:
-        MBEDTLS_INCLUDE_DIRS = os.path.join(cwd, "build_out", "build_mbedtls_pack", build_type, abi, "include" )
-        MBEDTLS_LIBRARY = os.path.join(cwd, "build_out", "build_mbedtls_pack", build_type, abi, "lib/libmbedtls.a" ) 
-        MBEDX509_LIBRARY = os.path.join(cwd, "build_out", "build_mbedtls_pack", build_type, abi, "lib/libmbedx509.a" ) 
-        MBEDCRYPTO_LIBRARY  = os.path.join(cwd, "build_out", "build_mbedtls_pack", build_type, abi, "lib/libmbedcrypto.a" ) 
-        
-
-        return " -DCMAKE_USE_OPENSSL=0  -DCMAKE_USE_MBEDTLS=1 -DMBEDTLS_INCLUDE_DIRS=%s -DMBEDTLS_LIBRARY=%s -DMBEDX509_LIBRARY=%s -DMBEDCRYPTO_LIBRARY=%s "% (
-            MBEDTLS_INCLUDE_DIRS, MBEDTLS_LIBRARY,MBEDX509_LIBRARY,  MBEDCRYPTO_LIBRARY)
-
-    return " -DCMAKE_USE_OPENSSL=0 "
-
-
 def do_build(config, installPath):
     #需要打包的abi
     abiList = [ ]
@@ -42,19 +24,24 @@ def do_build(config, installPath):
     if len(abiList) <= 0:
         return
 
-    downloadUrl =  'https://curl.haxx.se/download/curl-%s.zip'%(config['version'],)
+    downloadUrl =  'https://tls.mbed.org/download/mbedtls-%s-apache.tgz'%(config['version'],)
     
     outZipPath = os.path.join("./", os.path.basename(downloadUrl))
+   
+
     if not os.path.isfile(outZipPath):
         Utils.download(downloadUrl,   outZipPath)
     
-    Utils.extractZipFile(outZipPath)
-    
-    (filepath,tempfilename) = os.path.split(outZipPath)
-    (shotname,extension) = os.path.splitext(tempfilename)
+    Utils.cleanFile("./mbedtls")
+    Utils.mkDir("./mbedtls")
+    Utils.extractTarFile(outZipPath, "./mbedtls")
+   
+    #解压完毕,进入源代码目录
+    mbedtls_dir_list = os.listdir('./mbedtls')
+
     #获取源代码
     cwd = os.getcwd()
-    srcPath = os.path.join(cwd, shotname)
+    srcPath = os.path.join(cwd, mbedtls_dir_list[0])
     os.chdir(srcPath)
 
     ANDROID_SDK = Utils.getOSEnviron("ANDROID_SDK_ROOT")
@@ -73,7 +60,6 @@ def do_build(config, installPath):
     cmake_arguments= ""
     if 'cmake_arguments' in config.keys():
         cmake_arguments= config['cmake_arguments']
-
 
     android_api_level = "android-16"
     if "android_api" in config.keys():
@@ -98,11 +84,10 @@ def do_build(config, installPath):
             -DCMAKE_CXX_FLAGS=-std=c++11 -frtti -fexceptions   \
             -DCMAKE_TOOLCHAIN_FILE=%s/build/cmake/android.toolchain.cmake    \
             -DCMAKE_MAKE_PROGRAM=%s -G "Ninja"    \
-            -DHAVE_POLL_FINE_EXITCODE=0    \
+            -DENABLE_TESTING=0    \
             %s \
             -DCMAKE_INSTALL_PREFIX=%s \
-            ..'''%(ANDROID_CMAKE,abi,android_api_level,build_type,ANDROID_NDK,ANDROID_NDK,ANDROID_NINJA, 
-                cmake_arguments + checkDependencies(config, cwd, build_type, abi ),  os.path.join(installPath,build_type,abi) ) 
+            ..'''%(ANDROID_CMAKE,abi,android_api_level,build_type,ANDROID_NDK,ANDROID_NDK,ANDROID_NINJA, cmake_arguments,  os.path.join(installPath,build_type,abi) ) 
             
             Utils.runCmd(cmd)
             Utils.runCmd("%s --build ."%(ANDROID_CMAKE, ))
