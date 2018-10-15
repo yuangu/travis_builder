@@ -9,14 +9,10 @@ import sys
 
 def doBeforeBuild(env_config):    
     #判断是否有构建项
-    build_script = env_config['build_script']
-    hasNeedBuildPackage = False 
-    for k in build_script.keys():
-        build_config = build_script[k]
-        if "needBuild" in build_config.keys() and build_config["needBuild"]:
-            hasNeedBuildPackage = True
-            break
-    if not hasNeedBuildPackage:
+    if "build" not in  env_config.keys():
+        return False
+    
+    if len(env_config["build"]) <= 0:
         return False
     
     #配置环境 
@@ -52,21 +48,36 @@ def doAfterBuild(build_config, install_path):
         except:
             pass
 
+
+def _doBuild(k, build_config):
+      #加载构建器       
+    install_path = os.path.join("./build_out", k + "_pack")
+    install_path = os.path.abspath(install_path)
+    Utils.cleanFile(install_path)
+    builder = importlib.import_module("Android." + k )
+    builder.do_build(build_config, install_path)
+    doAfterBuild(build_config, install_path)
+
 def doBuild(env_config):
+    print "run"
+    go_to_build_list = env_config['build']
+    print go_to_build_list
     build_script = env_config['build_script']
     
-    for k in build_script.keys():
-        build_config = build_script[k]
-        if "needBuild" not in build_config.keys() or not build_config["needBuild"]:
-            continue
+    #已经构建完的列表
+    has_builded_list = []
 
-        #加载构建器       
-        install_path = os.path.join("./build_out", k + "_pack")
-        install_path = os.path.abspath(install_path)
-        Utils.cleanFile(install_path)
-        builder = importlib.import_module("Android." + k )
-        builder.do_build(build_script[k], install_path)
-        doAfterBuild(build_script[k], install_path)
+    for k in go_to_build_list:
+        build_config = build_script[k]
+        if "dependencies" in build_config.keys() and len(build_config["dependencies"]) > 0:
+            for v in build_config["dependencies"]:
+                if v not in has_builded_list:
+                    _doBuild(v, build_script[v])
+                    has_builded_list.append(v)
+
+        if k not in has_builded_list:
+            _doBuild(k, build_script[k])
+            has_builded_list.append(k)
 
 def main(build_target):
     os.environ["BUILD_TARGET"] = build_target    
@@ -77,7 +88,7 @@ def main(build_target):
     doBuild(env_config)
    
 if __name__ == "__main__":
-    if len(sys.argv) >= 2:
+    if len(sys.argv) >= 2:        
         main(sys.argv[1])
     else:
         print "python main.py build_platform_name"

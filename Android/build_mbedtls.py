@@ -41,7 +41,7 @@ def do_build(config, installPath):
 
     #获取源代码
     cwd = os.getcwd()
-    srcPath = os.path.join(cwd, mbedtls_dir_list[0])
+    srcPath = os.path.join(cwd,'./mbedtls', mbedtls_dir_list[0])
     os.chdir(srcPath)
 
     ANDROID_SDK = Utils.getOSEnviron("ANDROID_SDK_ROOT")
