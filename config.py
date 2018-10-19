@@ -11,7 +11,7 @@ config ={
 
         #"ndk": 'https://dl.google.com/android/repository/android-ndk-r16b-linux-x86_64.zip',    #ndk下载地址
         #"ndk_sha_1":'42aa43aae89a50d1c66c3f9fdecd676936da6128', 
-        "build":["build_curl", "build_mbedtls"],
+        "build":["build_bzip2"],
         "build_script":{
             "build_sxtwl":
             {         
@@ -61,10 +61,26 @@ config ={
                     # 'mips',
                     # 'mips64',
                 ]
-            }
+            },
+
+            "build_bzip2":
+            {    
+                'version':'1.0.2', #bzip2的版本
+                'cmake_arguments':'',
+                'android_api': "android-16", 
+                'build_type':["Release"],
+                "abiList" : [
+                    #'armeabi', 
+                    'armeabi-v7a',
+                    "arm64-v8a",
+                    "x86",
+                    'x86_64',
+                    # 'mips',
+                    # 'mips64',
+                ]
+            },
+
         },
-
-
 
     },
 
