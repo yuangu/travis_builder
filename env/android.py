@@ -201,18 +201,17 @@ class Android:
         ANDROID_CMAKE = os.path.join(self.getCmakeDir(), 'bin/cmake')
         return  ANDROID_CMAKE
 
-    def getCmakeArg(self, build_type='Release', abi= 'armeabi-v7a', android_api_level = 16):
+    def getCmakeArg(self,  abi= 'armeabi-v7a', android_api_level = 16):
         CMAKE_DIR = self.getCmakeDir()
         ANDROID_CMAKE = os.path.join(self.getCmakeDir(), 'bin/cmake')
         ANDROID_NINJA=os.path.join(CMAKE_DIR,'bin/ninja')
 
         cmd = '''-DANDROID_ABI=%s \
             -DANDROID_PLATFORM=%s \
-            -DCMAKE_BUILD_TYPE=%s \
             -DANDROID_NDK=%s \
             -DCMAKE_CXX_FLAGS=-std=c++11 -frtti -fexceptions \
             -DCMAKE_TOOLCHAIN_FILE=%s/build/cmake/android.toolchain.cmake \
-            -DCMAKE_MAKE_PROGRAM=%s -G "Ninja" '''%(abi,android_api_level,build_type,self.mNDKRoot,self.mNDKRoot,ANDROID_NINJA) 
+            -DCMAKE_MAKE_PROGRAM=%s -G "Ninja" '''%(abi,android_api_level,self.mNDKRoot,self.mNDKRoot,ANDROID_NINJA) 
         
         return cmd
   
